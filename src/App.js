@@ -9,14 +9,47 @@ const App = () => {
   const [isXTurn, setIsXTurn] = useState(true);
   const [winner, setWinner] = useState(null);
 
-  const handleClick = (index) => {
-    if (!(board[index] && winner)) {
-      const newBoard = [...board];
-      newBoard[index] = isXTurn ? "X" : "O";
-      setBoard(newBoard);
+  const checkWinner = (board) => {
+    const winningCombinations = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6],
+    ];
 
+    for (let combination of winningCombinations) {
+      const [a, b, c] = combination;
+      if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+        return board[a];
+      }
+    }
+
+    return board.every((cell) => cell) ? "Draw" : null;
+  };
+
+  const handleClick = (index) => {
+    if (board[index] || winner) return;
+
+    const newBoard = [...board];
+    newBoard[index] = isXTurn ? "X" : "O";
+    setBoard(newBoard);
+
+    const gameWinner = checkWinner(newBoard);
+    if (gameWinner) {
+      setWinner(gameWinner);
+    } else {
       setIsXTurn(!isXTurn);
     }
+  };
+
+  const restartGame = () => {
+    setBoard(Array(9).fill(null));
+    setIsXTurn(true);
+    setWinner(null);
   };
 
   return (
@@ -30,6 +63,12 @@ const App = () => {
           </div>
         ))}
       </div>
+      {winner && (
+        <div className="result">
+          <h2>{winner === "Draw" ? `!זה תיקו` : `! מנצח ${winner}`}</h2>
+          <button onClick={restartGame}>שחק שוב</button>
+        </div>
+      )}
     </div>
   );
 };
